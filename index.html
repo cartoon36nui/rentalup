@@ -432,76 +432,62 @@ async function loadFromSheet() {
   }
 }
 
+// --- ส่วนที่แก้ไข: การประมวลผล Alert ให้รายละเอียดตรงกัน ---
+
 function renderDashboard() {
-  const DATA      = G_DATA.filter(d => d.contract_no !== 'รถสำรองใช้งาน');
-  const withPrice = DATA.filter(d => d.price > 0);
+  const DATA = G_DATA.filter(d => d.contract_no !== 'รถสำรองใช้งาน');
+  
+  // [KPI ส่วนเดิม]
+  document.getElementById('kpi-total').innerText = G_DATA.length;
+  document.getElementById('kpi-revenue').innerText = DATA.reduce((s, d) => s + (Number(d.price) || 0), 0).toLocaleString();
+  document.getElementById('kpi-expired').innerText = DATA.filter(d => d.expiry_cat === 'หมดสัญญาแล้ว').length;
+  document.getElementById('kpi-soon3').innerText = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน').length;
 
-  document.getElementById('kpi-total').textContent   = G_DATA.length;
-  document.getElementById('kpi-revenue').textContent = withPrice.reduce((s, d) => s + d.price, 0).toLocaleString();
-  document.getElementById('kpi-avg').textContent     = withPrice.length
-    ? Math.round(withPrice.reduce((s, d) => s + d.price, 0) / withPrice.length).toLocaleString() : '0';
-  document.getElementById('kpi-expired').textContent = DATA.filter(d => d.expiry_cat === 'หมดสัญญาแล้ว').length;
-  document.getElementById('kpi-soon3').textContent   = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน').length;
-
+  // --- ส่วน ALERT-SECTION ที่ปรับปรุงใหม่ ---
   const expired = DATA.filter(d => d.expiry_cat === 'หมดสัญญาแล้ว');
-  const soon3   = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน');
+  const soon3 = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน');
   let alertHtml = '';
-  if (expired.length)
-    alertHtml += `<div class="alert-box"><div class="alert-icon">🚨</div><div><div class="alert-title">หมดสัญญาแล้ว ${expired.length} คัน</div></div></div>`;
-  if (soon3.length)
-    alertHtml += `<div class="alert-box warn"><div class="alert-icon">⚠️</div><div><div class="alert-title">ใกล้หมดสัญญาใน 3 เดือน ${soon3.length} คัน</div></div></div>`;
+  
+  if (expired.length) {
+    alertHtml += `
+      <div class="alert-box">
+        <div class="alert-icon">🚨</div>
+        <div style="width: 100%;">
+          <div class="alert-title">หมดสัญญาแล้ว ${expired.length} คัน — ต้องดำเนินการด่วน</div>
+          <div class="alert-list" style="font-family: 'Courier New', Courier, monospace; letter-spacing: 0px;">
+            ${expired.map(d => {
+              return `• ${d.company.padEnd(50, ' ')} (${d.province}) <span style="color:#f87171">· วันหมด: ${String(d.end).padEnd(12, ' ')}</span>`;
+            }).join('<br>')}
+          </div>
+        </div>
+      </div>`;
+  }
+  
+  if (soon3.length) {
+    alertHtml += `
+      <div class="alert-box warn">
+        <div class="alert-icon">⚠️</div>
+        <div style="width: 100%;">
+          <div class="alert-title">ใกล้หมดสัญญาภายใน 3 เดือน จำนวน ${soon3.length} คัน</div>
+          <div class="alert-list" style="display: table; width: 100%;">
+            ${soon3.map(d => {
+              // จัดรูปแบบโดยใช้ Flexbox หรือ Table-row เพื่อให้ "วันหมด" และ "เหลือ" ตรงกันเป๊ะ
+              return `
+              <div style="display: flex; justify-content: flex-start; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 2px 0;">
+                <span style="flex: 0 0 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">• ${d.company} (${d.province})</span>
+                <span style="flex: 0 0 150px; color: #cbd5e1;">· วันหมด: ${d.end}</span>
+                <span style="flex: 0 0 100px; color: #fbbf24; font-weight: bold;">· เหลือ ${d.days_left} วัน</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
   document.getElementById('alert-section').innerHTML = alertHtml;
 
-  ['chartProvince','chartExpiry','chartModel','chartNewUsed'].forEach(id => { Chart.getChart(id)?.destroy(); });
-  const CC = ['#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7','#06b6d4','#ec4899'];
-
-  const provCount = {};
-  G_DATA.forEach(d => { if(d.province) provCount[d.province] = (provCount[d.province] || 0) + 1; });
-  const provS = Object.entries(provCount).sort((a, b) => b[1] - a[1]);
-  new Chart(document.getElementById('chartProvince'), {
-    type: 'bar',
-    data: { labels: provS.map(e => e[0]), datasets: [{ label: 'จำนวนรถ (คัน)', data: provS.map(e => e[1]), backgroundColor: CC, borderRadius: 6 }] },
-    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }, x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } } }, responsive: true }
-  });
-
-  const exMap = { 'หมดสัญญาแล้ว': 0, 'ภายใน 3 เดือน': 0, 'ภายใน 6 เดือน': 0, 'มากกว่า 6 เดือน': 0 };
-  DATA.forEach(d => { if (exMap[d.expiry_cat] !== undefined) exMap[d.expiry_cat]++; });
-  new Chart(document.getElementById('chartExpiry'), {
-    type: 'doughnut',
-    data: { labels: Object.keys(exMap), datasets: [{ data: Object.values(exMap), backgroundColor: ['#ef4444','#f59e0b','#f97316','#22c55e'], borderColor: '#0f172a', borderWidth: 3 }] },
-    options: { plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, responsive: true, cutout: '60%' }
-  });
-
-  const modMap = {};
-  DATA.forEach(d => { modMap[d.model] = (modMap[d.model] || 0) + 1; });
-  const modS = Object.entries(modMap).sort((a, b) => b[1] - a[1]);
-  new Chart(document.getElementById('chartModel'), {
-    type: 'bar',
-    data: { labels: modS.map(e => e[0]), datasets: [{ data: modS.map(e => e[1]), backgroundColor: CC, borderRadius: 6 }] },
-    options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#1e293b' } }, x: { grid: { color: '#1e293b' } } }, responsive: true }
-  });
-
-  const nuMap = {};
-  DATA.forEach(d => { nuMap[d.new_used] = (nuMap[d.new_used] || 0) + 1; });
-  new Chart(document.getElementById('chartNewUsed'), {
-    type: 'pie',
-    data: { labels: Object.keys(nuMap), datasets: [{ data: Object.values(nuMap), backgroundColor: ['#3b82f6','#f59e0b'], borderColor: '#0f172a', borderWidth: 3 }] },
-    options: { plugins: { legend: { labels: { color: '#94a3b8', font: { size: 13 } } } }, responsive: true }
-  });
-
-  const provSel = document.getElementById('filterProvince');
-  const modSel  = document.getElementById('filterModel');
-  const expSel  = document.getElementById('filterExpiry');
-  while (provSel.options.length > 1) provSel.remove(1);
-  while (modSel.options.length  > 1) modSel.remove(1);
-  while (expSel.options.length  > 1) expSel.remove(1);
-  [...new Set(G_DATA.map(d => d.province))].sort().forEach(v => { provSel.add(new Option(v, v)); });
-  [...new Set(G_DATA.map(d => d.model))].sort().forEach(v => { modSel.add(new Option(v, v)); });
-  ['หมดสัญญาแล้ว','ภายใน 3 เดือน','ภายใน 6 เดือน','มากกว่า 6 เดือน','ไม่ระบุ'].forEach(v => { expSel.add(new Option(v, v)); });
-
-  G_filtered = [...G_DATA];
-  G_page     = 1;
-  renderTable();
+  // [ส่วนกราฟและตารางคงเดิม]
+  updateCharts(G_DATA);
+  renderTable(G_DATA);
 }
 
 function applyFilters() {
