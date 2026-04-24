@@ -894,15 +894,35 @@ function renderDashboard() {
 
   let alertHtml = '';
 
-  if (expired.length)
+ if (expired.length) {
+  const list = expired.map(d => `
+    <div>• ${d.company} | ${d.province} | หมด ${d.end || '-'} | เกิน ${Math.abs(d.days_left)} วัน</div>
+  `).join('');
 
-    alertHtml += `<div class="alert-box"><div class="alert-icon">🚨</div><div><div class="alert-title">หมดสัญญาแล้ว ${expired.length} คัน</div></div></div>`;
+  alertHtml += `
+    <div class="alert-box">
+      <div class="alert-icon">🚨</div>
+      <div>
+        <div class="alert-title">หมดสัญญาแล้ว ${expired.length} คัน</div>
+        <div class="alert-list">${list}</div>
+      </div>
+    </div>`;
+}
 
-  if (soon3.length)
+if (soon3.length) {
+  const list = soon3.map(d => `
+    <div>• ${d.company} | ${d.province} | หมด ${d.end || '-'} | เหลือ ${d.days_left} วัน</div>
+  `).join('');
 
-    alertHtml += `<div class="alert-box warn"><div class="alert-icon">⚠️</div><div><div class="alert-title">ใกล้หมดสัญญาใน 3 เดือน ${soon3.length} คัน</div></div></div>`;
-
-  document.getElementById('alert-section').innerHTML = alertHtml;
+  alertHtml += `
+    <div class="alert-box warn">
+      <div class="alert-icon">⚠️</div>
+      <div>
+        <div class="alert-title">ใกล้หมดสัญญาใน 3 เดือน ${soon3.length} คัน</div>
+        <div class="alert-list">${list}</div>
+      </div>
+    </div>`;
+}
 
 
 
