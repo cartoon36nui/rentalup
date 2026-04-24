@@ -159,32 +159,63 @@ async function loadData() {
 
     return obj;
   });
-  renderDashboard();
-}
+ // --- ส่วนที่แก้ไข: การประมวลผล Alert ให้รายละเอียดตรงกัน ---
 
 function renderDashboard() {
   const DATA = G_DATA.filter(d => d.contract_no !== 'รถสำรองใช้งาน');
   
-  // KPI
+  // [KPI ส่วนเดิม]
   document.getElementById('kpi-total').innerText = G_DATA.length;
   document.getElementById('kpi-revenue').innerText = DATA.reduce((s, d) => s + (Number(d.price) || 0), 0).toLocaleString();
   document.getElementById('kpi-expired').innerText = DATA.filter(d => d.expiry_cat === 'หมดสัญญาแล้ว').length;
   document.getElementById('kpi-soon3').innerText = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน').length;
 
-  // === ส่วนการแจ้งเตือนแบบดั้งเดิม (Show Details) ===
+  // --- ส่วน ALERT-SECTION ที่ปรับปรุงใหม่ ---
   const expired = DATA.filter(d => d.expiry_cat === 'หมดสัญญาแล้ว');
   const soon3 = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน');
   let alertHtml = '';
   
   if (expired.length) {
-    alertHtml += `<div class="alert-box">
-      <div class="alert-icon">🚨</div>
-      <div>
-        <div class="alert-title">หมดสัญญาแล้ว ${expired.length} คัน — ต้องดำเนินการด่วน</div>
-        <div class="alert-list">${expired.map(d => `• ${d.company} (${d.province}) · วันหมด: ${d.end}`).join('<br>')}</div>
-      </div>
-    </div>`;
+    alertHtml += `
+      <div class="alert-box">
+        <div class="alert-icon">🚨</div>
+        <div style="width: 100%;">
+          <div class="alert-title">หมดสัญญาแล้ว ${expired.length} คัน — ต้องดำเนินการด่วน</div>
+          <div class="alert-list" style="font-family: 'Courier New', Courier, monospace; letter-spacing: 0px;">
+            ${expired.map(d => {
+              return `• ${d.company.padEnd(50, ' ')} (${d.province}) <span style="color:#f87171">· วันหมด: ${String(d.end).padEnd(12, ' ')}</span>`;
+            }).join('<br>')}
+          </div>
+        </div>
+      </div>`;
   }
+  
+  if (soon3.length) {
+    alertHtml += `
+      <div class="alert-box warn">
+        <div class="alert-icon">⚠️</div>
+        <div style="width: 100%;">
+          <div class="alert-title">ใกล้หมดสัญญาภายใน 3 เดือน จำนวน ${soon3.length} คัน</div>
+          <div class="alert-list" style="display: table; width: 100%;">
+            ${soon3.map(d => {
+              // จัดรูปแบบโดยใช้ Flexbox หรือ Table-row เพื่อให้ "วันหมด" และ "เหลือ" ตรงกันเป๊ะ
+              return `
+              <div style="display: flex; justify-content: flex-start; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 2px 0;">
+                <span style="flex: 0 0 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">• ${d.company} (${d.province})</span>
+                <span style="flex: 0 0 150px; color: #cbd5e1;">· วันหมด: ${d.end}</span>
+                <span style="flex: 0 0 100px; color: #fbbf24; font-weight: bold;">· เหลือ ${d.days_left} วัน</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+  document.getElementById('alert-section').innerHTML = alertHtml;
+
+  // [ส่วนกราฟและตารางคงเดิม]
+  updateCharts(G_DATA);
+  renderTable(G_DATA);
+}
   
   if (soon3.length) {
     alertHtml += `<div class="alert-box warn">
