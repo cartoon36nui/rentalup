@@ -889,42 +889,85 @@ function renderDashboard() {
 
 
   const expired = DATA.filter(d => d.expiry_cat === 'หมดสัญญาแล้ว');
+const soon3   = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน');
 
-  const soon3   = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน');
+let alertHtml = '';
 
-  let alertHtml = '';
+// 🔹 ฟังก์ชันสร้าง header + list
+function buildList(data, type) {
+  if (!data.length) return '';
 
-  if (expired.length) {
-  const list = expired.map(d => `
-    <div>• ${d.company} | ${d.province} | หมด ${d.end || '-'} | เกิน ${Math.abs(d.days_left)} วัน</div>
-  `).join('');
+  const header = `
+    <div style="
+      font-family:monospace;
+      display:grid;
+      grid-template-columns: 1fr 110px 120px 120px;
+      gap:10px;
+      font-weight:bold;
+      margin-bottom:6px;">
+      <span>บริษัท</span>
+      <span>จังหวัด</span>
+      <span>วันหมด</span>
+      <span>สถานะ</span>
+    </div>`;
 
+  const rows = data.map(d => {
+    const dayText = d.days_left == null
+      ? '-'
+      : d.days_left < 0
+        ? `เกิน ${Math.abs(d.days_left)} วัน`
+        : `เหลือ ${d.days_left} วัน`;
+
+    return `
+      <div onclick="openDetail(${d._idx})"
+           style="
+             cursor:pointer;
+             font-family:monospace;
+             display:grid;
+             grid-template-columns: 1fr 110px 120px 120px;
+             gap:10px;
+             padding:2px 0;">
+        <span>${d.company || '-'}</span>
+        <span>${d.province || '-'}</span>
+        <span>${d.end || '-'}</span>
+        <span>${dayText}</span>
+      </div>`;
+  }).join('');
+
+  return header + rows;
+}
+
+
+// 🔴 หมดสัญญาแล้ว
+if (expired.length) {
   alertHtml += `
     <div class="alert-box">
       <div class="alert-icon">🚨</div>
-      <div>
+      <div style="width:100%">
         <div class="alert-title">หมดสัญญาแล้ว ${expired.length} คัน</div>
-        <div class="alert-list">${list}</div>
+        <div class="alert-list">
+          ${buildList(expired, 'expired')}
+        </div>
       </div>
     </div>`;
 }
 
-if (soon3.length) {
-  const list = soon3.map(d => `
-    <div>• ${d.company} | ${d.province} | หมด ${d.end || '-'} | เหลือ ${d.days_left} วัน</div>
-  `).join('');
 
+// 🟡 ใกล้หมด 3 เดือน
+if (soon3.length) {
   alertHtml += `
     <div class="alert-box warn">
       <div class="alert-icon">⚠️</div>
-      <div>
+      <div style="width:100%">
         <div class="alert-title">ใกล้หมดสัญญาใน 3 เดือน ${soon3.length} คัน</div>
-        <div class="alert-list">${list}</div>
+        <div class="alert-list">
+          ${buildList(soon3, 'soon')}
+        </div>
       </div>
     </div>`;
 }
 
-  document.getElementById('alert-section').innerHTML = alertHtml;
+document.getElementById('alert-section').innerHTML = alertHtml;
 
 
 
