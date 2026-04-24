@@ -159,8 +159,6 @@ async function loadData() {
 
     return obj;
   });
- // --- ส่วนที่แก้ไข: การประมวลผล Alert ให้รายละเอียดตรงกัน ---
-
 // ============================================================
 // ส่วนที่แก้ไข: ฟังก์ชัน renderDashboard พร้อมการจัดเรียง Alert ให้ตรงกัน
 // ============================================================
@@ -171,17 +169,14 @@ function renderDashboard() {
   // 1. Update KPIs
   document.getElementById('kpi-total').textContent = G_DATA.length;
   document.getElementById('kpi-revenue').textContent = withPrice.reduce((s, d) => s + d.price, 0).toLocaleString();
-  document.getElementById('kpi-avg').textContent = withPrice.length
-    ? Math.round(withPrice.reduce((s, d) => s + d.price, 0) / withPrice.length).toLocaleString() : '0';
   
-  // ประกาศตัวแปรเพื่อใช้ใน KPI และ Alert (ป้องกัน ReferenceError)
   const expired = DATA.filter(d => d.expiry_cat === 'หมดสัญญาแล้ว');
   const soon3 = DATA.filter(d => d.expiry_cat === 'ภายใน 3 เดือน');
 
   document.getElementById('kpi-expired').textContent = expired.length;
   document.getElementById('kpi-soon3').textContent = soon3.length;
 
-  // 2. Alerts Section - จัดรูปแบบให้ "วันหมด" และ "เหลือ" ตรงกัน
+  // 2. Alerts Section
   let alertHtml = '';
   
   if (expired.length > 0) {
@@ -222,12 +217,12 @@ function renderDashboard() {
   }
   document.getElementById('alert-section').innerHTML = alertHtml;
 
-  // 3. Update Charts & Table (ส่วนอื่นๆ เหมือนเดิม)
-  updateCharts(); 
+  // 3. เรียกฟังก์ชันอื่นๆ ต่อ
+  if (typeof updateCharts === 'function') updateCharts();
   G_filtered = [...G_DATA];
   G_page = 1;
-  renderTable();
-}
+  if (typeof renderTable === 'function') renderTable();
+} // <--- ตรวจสอบปีกกาปิดตัวนี้ด้วยครับ
 
 // ฟังก์ชันเปิดดูรายละเอียด (Detail Page) พร้อม Card หมายเหตุตามที่เคยแก้ไขไว้
 function openDetail(idx) {
