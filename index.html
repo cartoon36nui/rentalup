@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard ตารางรายการรถเช่า</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
@@ -80,7 +81,6 @@
   .table-header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 12px; }
   .table-header h3 { font-size: 14px; font-weight: 600; color: #cbd5e1; }
   
-  /* ส่วนจัดวาง Filter และปุ่มรายงาน */
   .filters-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; width: 100%; }
   .report-actions-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; width: 100%; margin-top: 2px; }
   
@@ -91,7 +91,6 @@
   th { background: #0f172a; color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; }
   td { padding: 10px 14px; border-bottom: 1px solid #1e293b; color: #cbd5e1; vertical-align: middle; }
   
-  /* 1. เมื่อเอาเมาส์มาชี้แถวตาราง ให้บริษัทเกิดเอฟเฟกต์ขีดเส้นใต้แบบ Alert Row */
   tr.clickable { cursor: pointer; }
   tr:hover td { background: #243044; }
   tr:hover td .company-link { color: #93c5fd; text-decoration: underline; }
@@ -196,14 +195,14 @@
   <div class="report-control-bar">
     <button class="btn-close-report" onclick="closeReport()">✕ ปิดหน้าต่างพรีวิว</button>
     <div style="font-weight:bold; font-size:16px; color:#fff;">👁️ ตัวอย่างรายงานตารางแนวนอน</div>
-    <button class="btn-download-excel" onclick="triggerExcelDownload()">🟢 ดาวน์โหลดเป็นไฟล์ Excel (.xls)</button>
+    <button class="btn-download-excel" onclick="triggerXlsxDownload()">🟢 ดาวน์โหลดเป็นไฟล์ Excel (.xlsx)</button>
   </div>
   <div class="report-container">
     <div class="report-excel-title">Bangkok Komatsu Forklift</div>
     <div class="report-excel-sub">ตรวจสอบตารางข้อมูลประวัติและเงื่อนไขสัญญาเช่ารถฟอร์กลิฟต์แยกตามคอลัมน์ Excel ก่อนทำการบันทึกข้อมูลออกระบบ</div>
     
     <div class="excel-preview-wrapper">
-      <table class="excel-horizontal-table">
+      <table class="excel-horizontal-table" id="hiddenExportTable">
         <thead>
           <tr>
             <th>#</th>
@@ -535,7 +534,6 @@ function applyFilters() {
   G_page=1; renderTable();
 }
 
-// 2. ฟังก์ชันปุ่มสำหรับล้างฟิลเตอร์การค้นหาทั้งหมด (Clear Filters)
 function clearAllSearchFilters() {
   document.getElementById('searchInput').value = '';
   document.getElementById('filterProvince').value = '';
@@ -629,7 +627,7 @@ function updateReportButton() {
     cnt.textContent = SELECTED_REPORT_INDEXES.size;
   } else {
     btn.style.display = 'none';
-    btnClear.style.display = 'none';
+    btn.style.display = 'none';
   }
 }
 
@@ -684,96 +682,16 @@ function closeReport() {
   document.getElementById('reportPage').classList.remove('active');
 }
 
-function triggerExcelDownload() {
-  if(SELECTED_REPORT_INDEXES.size === 0) return;
+// 🟢 3. ฟังก์ชันแปลงข้อมูลตารางพรีวิวและดาวน์โหลดออกเป็นไฟล์ .xlsx แท้ด้วยไลบรารี SheetJS
+function triggerXlsxDownload() {
+  const table = document.getElementById("hiddenExportTable");
+  if(!table) return;
 
-  let tableHtml = `<table border="1">
-    <thead>
-      <tr style="background-color: #1e3a8a; color: #ffffff; font-weight: bold;">
-        <th>#</th>
-        <th>company</th>
-        <th>province</th>
-        <th>สาขาที่ดูแล</th>
-        <th>Sales</th>
-        <th>เลขที่สัญญา</th>
-        <th>model</th>
-        <th>ประเภท (New/Used)</th>
-        <th>เลขตัวถัง</th>
-        <th>เลขเครื่อง</th>
-        <th>เบอร์รถ</th>
-        <th>Mast</th>
-        <th>Forks</th>
-        <th>ยาง</th>
-        <th>ยาง/ปี</th>
-        <th>อุปกรณ์เสริม</th>
-        <th>ชั่วโมงทำงาน/วัน</th>
-        <th>วันเริ่มสัญญา</th>
-        <th>วันหมดสัญญา</th>
-        <th>งวด</th>
-        <th>คงเหลือ (วัน)</th>
-        <th>ระยะเวลาเช่าสะสม</th>
-        <th>ราคา/เดือน</th>
-        <th>มูลค่าสัญญารวม</th>
-        <th>สถานะ</th>
-        <th>หมายเหตุ (Comment)</th>
-      </tr>
-    </thead>
-    <tbody>`;
-
-  SELECTED_REPORT_INDEXES.forEach(idx => {
-    const d = G_DATA.find(r => r._idx === idx);
-    if (!d) return;
-    const totalValue = d.price * d['งวด'];
-    const currentStatusText = d.contract_no === 'รถสำรองใช้งาน' ? 'รถสำรองใช้งาน' : d.expiry_cat;
-
-    tableHtml += `
-      <tr>
-        <td>${d.no || '–'}</td>
-        <td>${d.company || '–'}</td>
-        <td>${d.province || '–'}</td>
-        <td>${d.branch || '–'}</td>
-        <td>${d.sales || '–'}</td>
-        <td>${d.contract_no || '–'}</td>
-        <td>${d.model || '–'}</td>
-        <td>${d.new_used || '–'}</td>
-        <td>${d.chassis_no || '–'}</td>
-        <td>${d.engine_no || '–'}</td>
-        <td>${d.car_no || '–'}</td>
-        <td>${d.mast || '–'}</td>
-        <td>${d.forks || '–'}</td>
-        <td>${d.tire || '–'}</td>
-        <td>${d.tires_per_year || '–'}</td>
-        <td>${d.accessories || '–'}</td>
-        <td>${d.work_hours || '–'}</td>
-        <td>${d.start || '–'}</td>
-        <td>${d.end || '–'}</td>
-        <td>${d['งวด'] || '–'}</td>
-        <td>${d.days_left !== null ? d.days_left : '–'}</td>
-        <td>${d.rental_days_to_date || '–'}</td>
-        <td>${d.price || 0}</td>
-        <td>${totalValue || 0}</td>
-        <td>${currentStatusText}</td>
-        <td>${d.comment || '–'}</td>
-      </tr>`;
-  });
-
-  tableHtml += `</tbody></table>`;
+  // แปลงวัตถุ HTML Table ไปเป็นโครงสร้าง Worksheet ของ Excel
+  const workbook = XLSX.utils.table_to_book(table, { raw: true, sheet: "Rental_Report" });
   
-  const dataType = 'application/vnd.ms-excel';
-  const fileName = 'BKF_Rental_Report.xls';
-  const excelFile = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="UTF-8"></head>
-    <body>${tableHtml}</body>
-    </html>`;
-
-  const blob = new Blob([excelFile], { type: dataType });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // บันทึกและดึงไฟล์ออกสู่เครื่องผู้ใช้ปลายทางเป็นนามสกุล .xlsx อย่างสมบูรณ์แบบ
+  XLSX.writeFile(workbook, "BKF_Rental_Report.xlsx");
 }
 
 function changePage(dir){G_page+=dir;renderTable();}
