@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard ตารางรายการรถเช่า</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<!-- ไลบรารี SheetJS สำหรับแปลงและดาวน์โหลดไฟล์เป็น .xlsx แท้โดยไม่มีแจ้งเตือน -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -88,15 +87,15 @@
   .filters-row select, .filters-row input, .btn-action { background: #0f172a; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px; padding: 7px 12px; font-size: 12px; outline: none; cursor: pointer; font-weight: 500; }
   .filters-row select:focus, .filters-row input:focus { border-color: #3b82f6; }
   
-  /* 🔴 ปรับแต่งสไตล์ปุ่ม ล้างที่เลือก ใหม่ให้สวย โมเดิร์น ขอบมน เข้าชุดกับปุ่มอื่น */
+  /* 🔴 ตกแต่งปุ่มล้างที่เลือกใหม่ให้สวยงาม ขอบมนและสีสันเข้าพวกกับปุ่มอื่น */
   .btn-danger-custom {
-    background: #ef4444; 
-    color: #ffffff; 
-    border: 1px solid #dc2626; 
-    border-radius: 8px; 
-    padding: 7px 14px; 
-    font-size: 12px; 
-    font-weight: bold; 
+    background: #ef4444;
+    color: #ffffff;
+    border: 1px solid #dc2626;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: bold;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     transition: all 0.15s ease;
@@ -210,7 +209,6 @@
   <div class="detail-body" id="detail-body"></div>
 </div>
 
-<!-- หน้าต่างพรีวิว Report -->
 <div id="reportPage">
   <div class="report-control-bar">
     <button class="btn-close-report" onclick="closeReport()">✕ ปิดหน้าต่างพรีวิว</button>
@@ -291,7 +289,6 @@
         <button type="button" onclick="clearAllSearchFilters()" style="background:#475569; border-color:#64748b; color:#fff; font-size:12px; cursor:pointer; border-radius:8px; padding:7px 12px; font-weight:500;">✕ ล้างการค้นหา</button>
       </div>
 
-      <!-- 🔁 ปรับเปลี่ยนลำดับของปุ่มควบคุมรายงานตามบรีฟล่าสุด และใช้คลาสตกแต่งปุ่มล้างค่าใหม่ -->
       <div class="report-actions-row">
         <button id="btnRunReport" type="button" onclick="openReportPreview()" style="display:none; background:#10b981; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">📋 ดูหน้ารายงานที่เลือก (<span id="selectedCount">0</span>)</button>
         <button type="button" class="btn-action" onclick="selectAllDataSystem()" style="background:#1e3a8a; border-color:#3b82f6;">☑️ เลือกทั้งหมดทุกรายการ</button>
@@ -332,7 +329,7 @@
 </div>
 
 <script>
-const SHEET_ID   = '1iFWpgZBXHa93M6iTl5Xce4jTJVEy374tBDtHMKyCZI';
+const SHEET_ID   = '1iFWpgZBXHa93M6iTlI5Xce4jTJVEy374tBDtHMKyCZI';
 const SHEET_NAME = 'Sheet1';
 let G_DATA = [], G_filtered = [], G_page = 1;
 const PAGE_SIZE = 15;
