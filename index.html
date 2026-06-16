@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard ตารางรายการรถเช่า</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- ไลบรารี SheetJS สำหรับแปลงและดาวน์โหลดไฟล์เป็น .xlsx แท้โดยไม่มีแจ้งเตือน -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -86,6 +87,24 @@
   
   .filters-row select, .filters-row input, .btn-action { background: #0f172a; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px; padding: 7px 12px; font-size: 12px; outline: none; cursor: pointer; font-weight: 500; }
   .filters-row select:focus, .filters-row input:focus { border-color: #3b82f6; }
+  
+  /* 🔴 ปรับแต่งสไตล์ปุ่ม ล้างที่เลือก ใหม่ให้สวย โมเดิร์น ขอบมน เข้าชุดกับปุ่มอื่น */
+  .btn-danger-custom {
+    background: #ef4444; 
+    color: #ffffff; 
+    border: 1px solid #dc2626; 
+    border-radius: 8px; 
+    padding: 7px 14px; 
+    font-size: 12px; 
+    font-weight: bold; 
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transition: all 0.15s ease;
+  }
+  .btn-danger-custom:hover {
+    background: #dc2626;
+    border-color: #b91c1c;
+  }
   
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { background: #0f172a; color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; }
@@ -191,6 +210,7 @@
   <div class="detail-body" id="detail-body"></div>
 </div>
 
+<!-- หน้าต่างพรีวิว Report -->
 <div id="reportPage">
   <div class="report-control-bar">
     <button class="btn-close-report" onclick="closeReport()">✕ ปิดหน้าต่างพรีวิว</button>
@@ -271,10 +291,11 @@
         <button type="button" onclick="clearAllSearchFilters()" style="background:#475569; border-color:#64748b; color:#fff; font-size:12px; cursor:pointer; border-radius:8px; padding:7px 12px; font-weight:500;">✕ ล้างการค้นหา</button>
       </div>
 
+      <!-- 🔁 ปรับเปลี่ยนลำดับของปุ่มควบคุมรายงานตามบรีฟล่าสุด และใช้คลาสตกแต่งปุ่มล้างค่าใหม่ -->
       <div class="report-actions-row">
-        <button type="button" class="btn-action" onclick="selectAllDataSystem()" style="background:#1e3a8a; border-color:#3b82f6;">☑️ เลือกทั้งหมดทุกรายการ</button>
-        <button id="btnClearReport" type="button" onclick="clearAllSelections()" style="display:none; background:#df2626; border-color:#ef4444; color:#fff;">✕ ล้างที่เลือก</button>
         <button id="btnRunReport" type="button" onclick="openReportPreview()" style="display:none; background:#10b981; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">📋 ดูหน้ารายงานที่เลือก (<span id="selectedCount">0</span>)</button>
+        <button type="button" class="btn-action" onclick="selectAllDataSystem()" style="background:#1e3a8a; border-color:#3b82f6;">☑️ เลือกทั้งหมดทุกรายการ</button>
+        <button id="btnClearReport" type="button" class="btn-danger-custom" onclick="clearAllSelections()" style="display:none;">✕ ล้างที่เลือก</button>
       </div>
     </div>
     
@@ -311,7 +332,7 @@
 </div>
 
 <script>
-const SHEET_ID   = '1iFWpgZBXHa93M6iTlI5Xce4jTJVEy374tBDtHMKyCZI';
+const SHEET_ID   = '1iFWpgZBXHa93M6iTl5Xce4jTJVEy374tBDtHMKyCZI';
 const SHEET_NAME = 'Sheet1';
 let G_DATA = [], G_filtered = [], G_page = 1;
 const PAGE_SIZE = 15;
@@ -627,7 +648,7 @@ function updateReportButton() {
     cnt.textContent = SELECTED_REPORT_INDEXES.size;
   } else {
     btn.style.display = 'none';
-    btn.style.display = 'none';
+    btnClear.style.display = 'none';
   }
 }
 
@@ -682,15 +703,11 @@ function closeReport() {
   document.getElementById('reportPage').classList.remove('active');
 }
 
-// 🟢 3. ฟังก์ชันแปลงข้อมูลตารางพรีวิวและดาวน์โหลดออกเป็นไฟล์ .xlsx แท้ด้วยไลบรารี SheetJS
 function triggerXlsxDownload() {
   const table = document.getElementById("hiddenExportTable");
   if(!table) return;
 
-  // แปลงวัตถุ HTML Table ไปเป็นโครงสร้าง Worksheet ของ Excel
   const workbook = XLSX.utils.table_to_book(table, { raw: true, sheet: "Rental_Report" });
-  
-  // บันทึกและดึงไฟล์ออกสู่เครื่องผู้ใช้ปลายทางเป็นนามสกุล .xlsx อย่างสมบูรณ์แบบ
   XLSX.writeFile(workbook, "BKF_Rental_Report.xlsx");
 }
 
