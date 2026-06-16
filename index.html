@@ -143,42 +143,36 @@
   .progress-bar { height: 8px; background: #0f172a; border-radius: 8px; overflow: hidden; }
   .progress-fill { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
 
-  /* 📊 ส่วนสไตล์ตกแต่งหน้า Report ให้หน้าตาเหมือน Excel ตารางงาน */
-  #reportPage { display: none; position: fixed; inset: 0; z-index: 200; background: #f1f5f9; color: #000000; overflow-y: auto; padding: 30px 15px; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+  /* 📊 ส่วนจัดการสไตล์ Report เป็นแนวตารางกว้าง Excel แนวนอน (Landscape View) */
+  #reportPage { display: none; position: fixed; inset: 0; z-index: 200; background: #f8fafc; color: #000000; overflow-y: auto; padding: 25px 15px; font-family: 'Segoe UI', Tahoma, sans-serif; }
   #reportPage.active { display: block; }
-  .report-control-bar { max-width: 1100px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; }
+  .report-control-bar { width: 100%; max-width: 1500px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; }
   .btn-print { background: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
   .btn-close-report { background: #475569; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
   
-  .report-container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-  .report-excel-title { font-size: 20px; font-weight: bold; color: #1e3a8a; margin-bottom: 5px; text-transform: uppercase; }
-  .report-excel-sub { font-size: 12px; color: #475569; margin-bottom: 20px; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; }
+  .report-container { width: 100%; max-width: 1500px; margin: 0 auto; background: white; padding: 25px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow-x: auto; }
+  .report-excel-title { font-size: 18px; font-weight: bold; color: #1e3a8a; margin-bottom: 4px; }
+  .report-excel-sub { font-size: 12px; color: #475569; margin-bottom: 15px; }
 
-  /* โครงสร้างหลักตารางสไตล์ Excel */
-  .excel-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 35px; background: #fff; page-break-inside: avoid; }
-  .excel-table th, .excel-table td { border: 1px solid #cbd5e1; padding: 6px 10px; text-align: left; vertical-align: middle; }
+  /* การแสดงผลเส้นกรอบตารางแบบ Excel ชีต */
+  .excel-horizontal-table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 1400px; }
+  .excel-horizontal-table th { background: #f1f5f9; color: #1e293b; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px 6px; text-align: center; white-space: nowrap; }
+  .excel-horizontal-table td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; vertical-align: middle; color: #000000; white-space: nowrap; }
+  .excel-horizontal-table tr:nth-child(even) { background: #f8fafc; }
   
-  /* หัวข้อหมวดหมู่ใหญ่ในตาราง (เสมือนแถบหัวข้อกลุ่ม Excel) */
-  .excel-table tr.excel-group-header { background: #e2e8f0; font-weight: bold; color: #1e3a8a; font-size: 12px; }
-  
-  /* ส่วนกำหนดชื่อฟิลด์ด้านซ้าย */
-  .excel-label-col { background: #f8fafc; font-weight: 600; color: #334155; width: 22%; font-size: 11px; }
-  .excel-value-col { width: 28%; color: #000; }
-  
-  /* หัวตารางหลักระบุบริษัท */
-  .excel-main-header { background: #0f172a; color: #ffffff !important; font-size: 14px; font-weight: bold; padding: 8px 10px !important; }
+  /* ตัวปรับคอลัมน์หมายเหตุให้ยืดหยุ่น */
+  .col-comment { white-space: normal !important; min-width: 150px; font-style: italic; color: #475569; }
 
   @media print {
+    @page { size: landscape; margin: 5mm; }
     body * { visibility: hidden; }
     #reportPage, #reportPage * { visibility: visible; }
     #reportPage { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 0; }
     .report-control-bar { display: none !important; }
-    .report-container { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; }
-    .excel-table { width: 100% !important; margin-bottom: 25px; }
-    .excel-table th, .excel-table td { border: 1px solid #94a3b8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .excel-table tr.excel-group-header { background: #e2e8f0 !important; }
-    .excel-label-col { background: #f8fafc !important; }
-    .excel-main-header { background: #0f172a !important; color: #ffffff !important; }
+    .report-container { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; overflow: visible !important; }
+    .excel-horizontal-table { width: 100% !important; min-width: 100% !important; }
+    .excel-horizontal-table th { background: #e2e8f0 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .excel-horizontal-table td { border: 1px solid #94a3b8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 
   @media (max-width: 768px) {
@@ -216,15 +210,51 @@
   <div class="detail-body" id="detail-body"></div>
 </div>
 
+<!-- หน้าแสดง Report สำหรับพิมพ์ PDF (ตาราง Excel แนวนอน เรียงแถว Row ลงมาครบถ้วน) -->
 <div id="reportPage">
   <div class="report-control-bar">
     <button class="btn-close-report" onclick="closeReport()">✕ ปิดหน้าต่างรายงาน</button>
-    <button class="btn-print" onclick="window.print()">🖨️ สั่งพิมพ์ / บันทึกเป็น PDF (ตาราง Excel)</button>
+    <button class="btn-print" onclick="window.print()">🖨️ พิมพ์รายงาน / บันทึกเป็น PDF (Excel แนวนอน)</button>
   </div>
   <div class="report-container">
     <div class="report-excel-title">Bangkok Komatsu Forklift</div>
-    <div class="report-excel-sub">รายงานรายละเอียดข้อมูลประวัติและสัญญาเช่ารถฟอร์กลิฟต์ (แยกตามรายการที่เลือก)</div>
-    <div id="reportContainer"></div>
+    <div class="report-excel-sub">รายงานข้อมูลรายละเอียดและสถานะสัญญาเช่ารถฟอร์กลิฟต์ครบทุกฟิลด์ (Excel Report แบบแนวนอน)</div>
+    
+    <div style="overflow-x: auto;">
+      <table class="excel-horizontal-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>company</th>
+            <th>province</th>
+            <th>สาขาที่ดูแล</th>
+            <th>Sales</th>
+            <th>เลขที่สัญญา</th>
+            <th>model</th>
+            <th>ประเภท (New/Used)</th>
+            <th>เลขตัวถัง</th>
+            <th>เลขเครื่อง</th>
+            <th>เบอร์รถ</th>
+            <th>Mast</th>
+            <th>Forks</th>
+            <th>ยาง</th>
+            <th>ยาง/ปี</th>
+            <th>อุปกรณ์เสริม</th>
+            <th>ชั่วโมงทำงาน/วัน</th>
+            <th>วันเริ่มสัญญา</th>
+            <th>วันหมดสัญญา</th>
+            <th>งวด</th>
+            <th>คงเหลือ (วัน)</th>
+            <th>ระยะเวลาเช่าสะสม</th>
+            <th>ราคา/เดือน</th>
+            <th>มูลค่าสัญญารวม</th>
+            <th>สถานะ</th>
+            <th style="min-width: 150px;">หมายเหตุ (Comment)</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -589,11 +619,11 @@ function updateReportButton() {
   }
 }
 
-// 🖨️ ฟังก์ชันสร้างหน้า Report ในโครงสร้าง Table แบบตารางงาน Excel ดึงครบทุก Field
+// 🖨️ ฟังก์ชันสร้างแถวข้อมูลแนวราบต่อกันลงมาสไตล์ Excel Spreadsheet ครบถ้วนทุกฟิลด์
 function generateReport() {
   if(SELECTED_REPORT_INDEXES.size === 0) return;
   
-  let reportHtml = '';
+  let rowsHtml = '';
   SELECTED_REPORT_INDEXES.forEach(idx => {
     const d = G_DATA.find(r => r._idx === idx);
     if (!d) return;
@@ -602,113 +632,38 @@ function generateReport() {
     const totalValue = d.price * d['งวด'];
     const currentStatusText = isReserve ? 'รถสำรองใช้งาน' : d.expiry_cat;
 
-    reportHtml += `
-      <table class="excel-table">
-        <thead>
-          <tr>
-            <th colspan="4" class="excel-main-header">🏢 ข้อมูลบริษัทคู่สัญญา: ${d.company || '–'}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="excel-group-header">
-            <td colspan="4">1. ข้อมูลบริษัทและผู้ดูแล</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">ลำดับที่ (No.)</td>
-            <td class="excel-value-col">${d.no || '–'}</td>
-            <td class="excel-label-col">จังหวัด</td>
-            <td class="excel-value-col">${d.province || '–'}</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">สาขาที่ดูแล</td>
-            <td class="excel-value-col">${d.branch || '–'}</td>
-            <td class="excel-label-col">พนักงานขาย (Sales)</td>
-            <td class="excel-value-col">${d.sales || '–'}</td>
-          </tr>
-
-          <tr class="excel-group-header">
-            <td colspan="4">2. ข้อมูลตัวรถและอุปกรณ์ส่วนควบ (Forklift Specifications)</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">รูปแบบรถ (Model)</td>
-            <td class="excel-value-col"><strong>${d.model || '–'}</strong></td>
-            <td class="excel-label-col">ประเภทสภาพรถ</td>
-            <td class="excel-value-col">${d.new_used || '–'}</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">หมายเลขตัวถัง (Chassis No.)</td>
-            <td class="excel-value-col" style="font-family:monospace;">${d.chassis_no || '–'}</td>
-            <td class="excel-label-col">หมายเลขเครื่องยนต์ (Engine No.)</td>
-            <td class="excel-value-col" style="font-family:monospace;">${d.engine_no || '–'}</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">เบอร์รถ (Car No.)</td>
-            <td class="excel-value-col"><strong>${d.car_no || '–'}</strong></td>
-            <td class="excel-label-col">เสายก (Mast)</td>
-            <td class="excel-value-col">${d.mast || '–'}</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">งายก (Forks)</td>
-            <td class="excel-value-col">${d.forks || '–'}</td>
-            <td class="excel-label-col">ชนิดยาง (Tire)</td>
-            <td class="excel-value-col">${d.tire || '–'}</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">โควตายางเปลี่ยน / ปี</td>
-            <td class="excel-value-col">${d.tires_per_year ? d.tires_per_year + ' เส้น' : '–'}</td>
-            <td class="excel-label-col">ชั่วโมงทำงาน / วัน</td>
-            <td class="excel-value-col">${d.work_hours ? d.work_hours + ' ชม.' : '–'}</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">อุปกรณ์เสริม (Accessories)</td>
-            <td colspan="3">${d.accessories || '–'}</td>
-          </tr>
-
-          <tr class="excel-group-header">
-            <td colspan="4">3. รายละเอียดและกำหนดเวลาสัญญาเช่า</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">เลขที่สัญญา</td>
-            <td class="excel-value-col">${d.contract_no || '–'}</td>
-            <td class="excel-label-col">สถานะสัญญาปัจจุบัน</td>
-            <td class="excel-value-col"><strong>${currentStatusText}</strong></td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">วันเริ่มสัญญา</td>
-            <td class="excel-value-col">${d.start || '–'}</td>
-            <td class="excel-label-col">วันสิ้นสุดสัญญา</td>
-            <td class="excel-value-col">${d.end || '–'}</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">ระยะเวลารวม (งวด)</td>
-            <td class="excel-value-col">${d['งวด'] ? d['งวด'] + ' งวด' : '–'}</td>
-            <td class="excel-label-col">จำนวนวันคงเหลือ (Days Left)</td>
-            <td class="excel-value-col">${d.days_left !== null ? d.days_left + ' วัน' : '–'}</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">ระยะเวลาเช่าสะสม</td>
-            <td colspan="3">${d.rental_days_to_date || '–'}</td>
-          </tr>
-
-          <tr class="excel-group-header">
-            <td colspan="4">4. ข้อมูลสรุปทางบัญชีและการเงิน</td>
-          </tr>
-          <tr>
-            <td class="excel-label-col">ราคาค่าเช่า / เดือน</td>
-            <td class="excel-value-col" style="color:#b45309; font-weight:bold; font-size:13px;">${d.price > 0 ? d.price.toLocaleString() + ' ฿' : '–'}</td>
-            <td class="excel-label-col">มูลค่าสัญญารวมรวมทั้งสิ้น</td>
-            <td class="excel-value-col" style="color:#15803d; font-weight:bold; font-size:13px;">${totalValue > 0 ? totalValue.toLocaleString() + ' ฿' : '–'}</td>
-          </tr>
-          
-          <tr>
-            <td class="excel-label-col">หมายเหตุเพิ่มเติม (Comment)</td>
-            <td colspan="3" style="white-space:pre-wrap; font-style:italic; color:#475569;">${d.comment || 'ไม่มีหมายเหตุเพิ่มเติม'}</td>
-          </tr>
-        </tbody>
-      </table>`;
+    rowsHtml += `
+      <tr>
+        <td style="text-align:center;">${d.no || '–'}</td>
+        <td style="font-weight:600; color:#1e3a8a;">${d.company || '–'}</td>
+        <td>${d.province || '–'}</td>
+        <td>${d.branch || '–'}</td>
+        <td>${d.sales || '–'}</td>
+        <td>${d.contract_no || '–'}</td>
+        <td style="font-weight:600;">${d.model || '–'}</td>
+        <td>${d.new_used || '–'}</td>
+        <td style="font-family:monospace;">${d.chassis_no || '–'}</td>
+        <td style="font-family:monospace;">${d.engine_no || '–'}</td>
+        <td><strong>${d.car_no || '–'}</strong></td>
+        <td>${d.mast || '–'}</td>
+        <td>${d.forks || '–'}</td>
+        <td>${d.tire || '–'}</td>
+        <td style="text-align:center;">${d.tires_per_year ? d.tires_per_year + ' เส้น' : '–'}</td>
+        <td class="col-comment">${d.accessories || '–'}</td>
+        <td style="text-align:center;">${d.work_hours ? d.work_hours + ' ชม.' : '–'}</td>
+        <td>${d.start || '–'}</td>
+        <td>${d.end || '–'}</td>
+        <td style="text-align:center;">${d['งวด'] ? d['งวด'] + ' งวด' : '–'}</td>
+        <td style="text-align:center;">${d.days_left !== null ? d.days_left : '–'}</td>
+        <td>${d.rental_days_to_date || '–'}</td>
+        <td style="text-align:right; font-weight:600; color:#b45309;">${d.price > 0 ? d.price.toLocaleString() : '–'}</td>
+        <td style="text-align:right; font-weight:600; color:#15803d;">${totalValue > 0 ? totalValue.toLocaleString() : '–'}</td>
+        <td>${currentStatusText}</td>
+        <td class="col-comment">${d.comment || '–'}</td>
+      </tr>`;
   });
   
-  document.getElementById('reportContainer').innerHTML = reportHtml;
+  document.getElementById('reportTableBody').innerHTML = rowsHtml;
   document.getElementById('reportPage').classList.add('active');
 }
 
