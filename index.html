@@ -42,16 +42,19 @@
   .alert-box.warn .alert-title { color: #fcd34d; }
   .alert-list { margin-top: 6px; font-size: 12px; color: #94a3b8; line-height: 1.6; }
 
-  /* ★ Alert grid: 5 columns now (company | province | chassis | end-date | status) */
+  /* Alert grid: 6 columns (company | province | chassis | start | end | status) */
   .alert-header,
   .alert-row {
     font-family: monospace;
     display: grid;
-    grid-template-columns: 1fr 90px 150px 110px 130px;
+    grid-template-columns: 1fr 90px 150px 105px 105px 130px;
     gap: 10px;
     align-items: center;
     padding: 3px 0;
+    text-align: center;
   }
+  .alert-header span:first-child,
+  .alert-row   span:first-child { text-align: left; }
   .alert-header { font-weight: bold; color: #94a3b8; margin-bottom: 6px; }
   .alert-row { cursor: pointer; transition: all 0.15s ease; }
   .alert-row:hover { opacity: 0.85; text-decoration: underline; }
@@ -76,7 +79,7 @@
   .table-section { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; }
   .table-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; flex-wrap: wrap; gap: 12px; }
   .table-header h3 { font-size: 14px; font-weight: 600; color: #cbd5e1; }
-  .filters { display: flex; gap: 10px; flex-wrap: wrap; }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .filters select, .filters input { background: #0f172a; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px; padding: 7px 12px; font-size: 12px; outline: none; cursor: pointer; }
   .filters select:focus, .filters input:focus { border-color: #3b82f6; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -141,6 +144,31 @@
   .progress-bar { height: 8px; background: #0f172a; border-radius: 8px; overflow: hidden; }
   .progress-fill { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
 
+  /* Report CSS Elements */
+  #reportPage { display: none; position: fixed; inset: 0; z-index: 200; background: #f8fafc; color: #1e293b; overflow-y: auto; padding: 40px 20px; }
+  #reportPage.active { display: block; }
+  .report-container { max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+  .report-control-bar { max-width: 1000px; margin: 0 auto 20px auto; display: flex; justify-content: space-between; }
+  .btn-print { background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .btn-close-report { background: #64748b; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+  .report-item { page-break-after: always; border-bottom: 2px dashed #cbd5e1; padding-bottom: 30px; margin-bottom: 30px; }
+  .report-item:last-child { border-bottom: none; page-break-after: avoid; }
+  .report-header-block { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .report-title-text { font-size: 22px; font-weight: bold; color: #0f172a; }
+  .report-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 15px; }
+  .report-field { border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
+  .report-field-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+  .report-field-value { font-size: 14px; color: #0f172a; font-weight: 500; margin-top: 2px; }
+
+  @media print {
+    body * { visibility: hidden; }
+    #reportPage, #reportPage * { visibility: visible; }
+    #reportPage { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 0; }
+    .report-control-bar { display: none !important; }
+    .report-container { box-shadow: none !important; border: none !important; padding: 0 !important; }
+    .report-item { border-bottom: 1px solid #aaa; }
+  }
+
   @media (max-width: 768px) {
     .main { padding: 14px; }
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -149,8 +177,9 @@
     td, th { padding: 8px 10px; }
     .detail-body { padding: 14px; }
     .detail-grid { grid-template-columns: repeat(2, 1fr); }
-    .alert-header, .alert-row { grid-template-columns: 1fr 80px 100px 90px; }
-    .alert-header span:nth-child(3), .alert-row span:nth-child(3) { display: none; }
+    .alert-header, .alert-row { grid-template-columns: 1fr 80px 95px 110px; }
+    .alert-header span:nth-child(3), .alert-row span:nth-child(3),
+    .alert-header span:nth-child(4), .alert-row span:nth-child(4) { display: none; }
   }
 </style>
 </head>
@@ -175,6 +204,14 @@
   <div class="detail-body" id="detail-body"></div>
 </div>
 
+<div id="reportPage">
+  <div class="report-control-bar">
+    <button class="btn-close-report" onclick="closeReport()">✕ ปิดหน้าต่างรายงาน</button>
+    <button class="btn-print" onclick="window.print()">🖨️ บันทึกเป็น PDF / สั่งพิมพ์</button>
+  </div>
+  <div class="report-container" id="reportContainer"></div>
+</div>
+
 <div class="main">
   <div class="kpi-grid">
     <div class="kpi-card kpi-blue"><div class="accent"></div><div class="label">รถทั้งหมด</div><div class="value" id="kpi-total">–</div><div class="sub">คัน (รวมรถสำรอง)</div></div>
@@ -197,6 +234,7 @@
     <div class="table-header">
       <h3>📋 รายการรถเช่าทั้งหมด</h3>
       <div class="filters">
+        <button id="btnRunReport" onclick="generateReport()" style="display:none; background:#10b981; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;">🖨️ ออกรายงานคันที่เลือก (<span id="selectedCount">0</span>)</button>
         <input type="text" id="searchInput" placeholder="🔍 ค้นหาบริษัท..." style="width:180px">
         <select id="filterProvince"><option value="">ทุกจังหวัด</option></select>
         <select id="filterExpiry"><option value="">ทุกสถานะ</option></select>
@@ -207,12 +245,13 @@
       <table>
         <thead>
           <tr>
+            <th style="text-align:center; width:45px;"><input type="checkbox" id="selectAllCheck" onclick="toggleSelectAll(this)" style="cursor:pointer;"></th>
             <th>#</th>
             <th>บริษัท</th>
             <th>จังหวัด</th>
             <th>รุ่น</th>
-            <th>เลขตัวถัง</th><!-- ★ NEW -->
-            <th>ประเภท</th>
+            <th>เลขตัวถัง</th>
+            <th>วันเริ่มสัญญา</th>
             <th>วันหมดสัญญา</th>
             <th>คงเหลือ</th>
             <th>สถานะ</th>
@@ -239,6 +278,11 @@ const SHEET_ID   = '1iFWpgZBXHa93M6iTlI5Xce4jTJVEy374tBDtHMKyCZI';
 const SHEET_NAME = 'Sheet1';
 let G_DATA = [], G_filtered = [], G_page = 1;
 const PAGE_SIZE = 15;
+
+// เก็บเซ็ตข้อมูล index ของรถที่ถูกเลือกทำรายงาน
+let SELECTED_REPORT_INDEXES = new Set();
+
+let detailIsOpen = false;
 
 document.body.insertAdjacentHTML('afterbegin', `
   <div id="loadingOverlay" style="position:fixed;inset:0;z-index:9999;background:#0f172a;
@@ -278,9 +322,9 @@ function daysLeft(val) {
 }
 function expiryCat(days) {
   if (days===null) return 'ไม่ระบุ';
-  if (days<0)     return 'หมดสัญญาแล้ว';
-  if (days<=90)   return 'ภายใน 3 เดือน';
-  if (days<=180)  return 'ภายใน 6 เดือน';
+  if (days<0)      return 'หมดสัญญาแล้ว';
+  if (days<=90)    return 'ภายใน 3 เดือน';
+  if (days<=180)   return 'ภายใน 6 เดือน';
   return 'มากกว่า 6 เดือน';
 }
 function cellVal(row, idx) {
@@ -318,7 +362,12 @@ async function loadFromSheet() {
     const text = await res.text();
     const json = JSON.parse(text.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);\s*$/,''));
     const cols = json.table.cols.map(c=>c.label.trim());
+    console.log('📋 Column names from Sheet:', cols);
     const rentalDaysIdx = cols.findIndex(c=>c.toLowerCase().includes('number of rental days'));
+
+    const startIdx = cols.findIndex(c=> /^start/i.test(c) || /วันเริ่ม/i.test(c) || /start.?date/i.test(c));
+    const endIdx   = cols.findIndex(c=> /^end/i.test(c)   || /วันหมด/i.test(c)   || /end.?date/i.test(c)   || /วันสิ้นสุด/i.test(c));
+    console.log(`🗓 startIdx=${startIdx} (${cols[startIdx]})  endIdx=${endIdx} (${cols[endIdx]})`);
 
     G_DATA = (json.table.rows||[])
       .filter(row=>row.c&&row.c.some(c=>c?.v!==null&&c?.v!==''))
@@ -328,6 +377,8 @@ async function loadFromSheet() {
           if (!col) return;
           obj[i===rentalDaysIdx ? 'rental_days_to_date' : col] = i===rentalDaysIdx ? cellRaw(row,i) : cellVal(row,i);
         });
+        if (startIdx>=0 && !obj.start) obj.start = cellVal(row, startIdx);
+        if (endIdx>=0   && !obj.end)   obj.end   = cellVal(row, endIdx);
         const days=daysLeft(obj.end);
         obj.days_left  = days;
         obj.expiry_cat = expiryCat(days);
@@ -358,11 +409,10 @@ function renderDashboard() {
   const expired = DATA.filter(d=>d.expiry_cat==='หมดสัญญาแล้ว');
   const soon3   = DATA.filter(d=>d.expiry_cat==='ภายใน 3 เดือน');
 
-  /* ★ buildList — now with chassis column */
   function buildList(data) {
     if (!data.length) return '';
     const header = `<div class="alert-header">
-      <span>บริษัท</span><span>จังหวัด</span><span>เลขตัวถัง</span><span>วันหมด</span><span>สถานะ</span>
+      <span>บริษัท</span><span>จังหวัด</span><span>เลขตัวถัง</span><span>วันเริ่ม</span><span>วันหมด</span><span>สถานะ</span>
     </div>`;
     const rows = data.map(d => {
       const dayText = d.days_left==null ? '-'
@@ -375,6 +425,7 @@ function renderDashboard() {
         <span>${d.company||'-'}</span>
         <span>${d.province||'-'}</span>
         <span>${chassisHtml}</span>
+        <span>${d.start||'–'}</span>
         <span>${d.end||'-'}</span>
         <span>${dayText}</span>
       </div>`;
@@ -454,19 +505,24 @@ function renderTable() {
   const start=(G_page-1)*PAGE_SIZE;
   const page=G_filtered.slice(start,start+PAGE_SIZE);
 
+  // ตรวจสอบสถานะการติ๊กของหัวตารางหลัก (Select All)
+  const allChecked = page.length > 0 && page.every(d => SELECTED_REPORT_INDEXES.has(d._idx));
+  document.getElementById('selectAllCheck').checked = allChecked;
+
   document.getElementById('tableBody').innerHTML = page.map(d=>`
-    <tr class="clickable" onclick="openDetail(${d._idx})">
-      <td>${d.no}</td>
-      <td><div class="company-text"><span class="company-link">${d.company}</span></div></td>
-      <td>${d.province}</td>
-      <td><code style="background:#0f172a;padding:2px 6px;border-radius:4px;font-size:11px;color:#7dd3fc">${d.model}</code></td>
-      <td><span style="font-family:monospace;font-size:11px;color:#a78bfa">${d.chassis_no||'–'}</span></td>
-      <td><span class="badge ${d.new_used==='NEW'?'badge-new':'badge-used'}">${d.new_used}</span></td>
-      <td style="font-size:12px;color:#94a3b8">${d.end||'–'}</td>
-      <td>${daysText(d.days_left)}</td>
-      <td>${expiryBadge(d.expiry_cat)}</td>
-      <td class="price-text">${d.price>0?d.price.toLocaleString()+' ฿':'–'}</td>
-      <td style="color:#94a3b8">${d['งวด']||'–'}</td>
+    <tr>
+      <td style="text-align:center;"><input type="checkbox" class="report-chk" data-idx="${d._idx}" ${SELECTED_REPORT_INDEXES.has(d._idx)?'checked':''} onclick="handleRowSelect(this, event)" style="cursor:pointer;"></td>
+      <td class="clickable" onclick="openDetail(${d._idx})">${d.no}</td>
+      <td class="clickable" onclick="openDetail(${d._idx})"><div class="company-text"><span class="company-link">${d.company}</span></div></td>
+      <td class="clickable" onclick="openDetail(${d._idx})">${d.province}</td>
+      <td class="clickable" onclick="openDetail(${d._idx})"><code style="background:#0f172a;padding:2px 6px;border-radius:4px;font-size:11px;color:#7dd3fc">${d.model}</code></td>
+      <td class="clickable" onclick="openDetail(${d._idx})"><span style="font-family:monospace;font-size:11px;color:#a78bfa">${d.chassis_no||'–'}</span></td>
+      <td class="clickable" onclick="openDetail(${d._idx})" style="font-size:12px;color:#94a3b8">${d.start||'–'}</td>
+      <td class="clickable" onclick="openDetail(${d._idx})" style="font-size:12px;color:#94a3b8">${d.end||'–'}</td>
+      <td class="clickable" onclick="openDetail(${d._idx})">${daysText(d.days_left)}</td>
+      <td class="clickable" onclick="openDetail(${d._idx})">${expiryBadge(d.expiry_cat)}</td>
+      <td class="clickable" onclick="openDetail(${d._idx})" class="price-text">${d.price>0?d.price.toLocaleString()+' ฿':'–'}</td>
+      <td class="clickable" onclick="openDetail(${d._idx})" style="color:#94a3b8">${d['งวด']||'–'}</td>
     </tr>`).join('');
 
   const total=G_filtered.length;
@@ -483,7 +539,112 @@ function renderTable() {
       pagHtml+=`<button disabled style="border:none;background:transparent;color:#475569">…</button>`;
   }
   document.getElementById('pag-pages').innerHTML=pagHtml;
+  updateReportButton();
 }
+
+/* ฟังก์ชันควบคุมการจัดการ Checkbox & สร้าง Report */
+function handleRowSelect(chk, event) {
+  event.stopPropagation(); // ไม่ให้ไปเรียก openDetail สับซ้อนกัน
+  const idx = parseInt(chk.getAttribute('data-idx'));
+  if(chk.checked) {
+    SELECTED_REPORT_INDEXES.add(idx);
+  } else {
+    SELECTED_REPORT_INDEXES.delete(idx);
+  }
+  updateReportButton();
+}
+
+function toggleSelectAll(masterChk) {
+  const start=(G_page-1)*PAGE_SIZE;
+  const page=G_filtered.slice(start,start+PAGE_SIZE);
+  
+  page.forEach(d => {
+    if(masterChk.checked) {
+      SELECTED_REPORT_INDEXES.add(d._idx);
+    } else {
+      SELECTED_REPORT_INDEXES.delete(d._idx);
+    }
+  });
+  renderTable();
+}
+
+function updateReportButton() {
+  const btn = document.getElementById('btnRunReport');
+  const cnt = document.getElementById('selectedCount');
+  if(SELECTED_REPORT_INDEXES.size > 0) {
+    btn.style.display = 'inline-block';
+    cnt.textContent = SELECTED_REPORT_INDEXES.size;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function generateReport() {
+  if(SELECTED_REPORT_INDEXES.size === 0) return;
+  
+  let reportHtml = '';
+  SELECTED_REPORT_INDEXES.forEach(idx => {
+    const d = G_DATA.find(r => r._idx === idx);
+    if (!d) return;
+    
+    const isReserve = d.contract_no === 'รถสำรองใช้งาน';
+    const totalValue = d.price * d['งวด'];
+    const currentStatusText = isReserve ? 'รถสำรองใช้งาน' : d.expiry_cat;
+
+    reportHtml += `
+      <div class="report-item">
+        <div class="report-header-block">
+          <div>
+            <div class="report-title-text">${d.company}</div>
+            <div style="font-size:13px; color:#475569; margin-top:2px;">โมเดล: ${d.model || '–'} | หมายเลขรถ: ${d.car_no || '–'}</div>
+          </div>
+          <div style="text-align:right; font-size:12px; color:#475569;">
+            <div>สถานะสัญญา: <strong>${currentStatusText}</strong></div>
+            <div>จังหวัด: ${d.province || '–'}</div>
+          </div>
+        </div>
+        
+        <div style="font-size:12px; font-weight:bold; color:#1e3a8a; text-transform:uppercase; margin-bottom:8px;">📋 ข้อมูลทั่วไปและสัญญาครบทุกฟิลด์</div>
+        <div class="report-grid">
+          <div class="report-field"><div class="report-field-label">ลำดับที่ (No)</div><div class="report-field-value">${d.no || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">จังหวัด</div><div class="report-field-value">${d.province || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">สาขาที่ดูแล</div><div class="report-field-value">${d.branch || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">พนักงานขาย (Sales)</div><div class="report-field-value">${d.sales || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">เลขที่สัญญา</div><div class="report-field-value">${d.contract_no || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">รูปแบบรถ (Model)</div><div class="report-field-value">${d.model || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">ประเภทรถ</div><div class="report-field-value">${d.new_used || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">หมายเลขตัวถัง (Chassis No.)</div><div class="report-field-value">${d.chassis_no || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">หมายเลขเครื่องยนต์ (Engine No.)</div><div class="report-field-value">${d.engine_no || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">เบอร์รถ (Car No.)</div><div class="report-field-value">${d.car_no || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">เสา (Mast)</div><div class="report-field-value">${d.mast || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">งา (Forks)</div><div class="report-field-value">${d.forks || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">ยาง (Tire)</div><div class="report-field-value">${d.tire || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">จำนวนยาง / ปี</div><div class="report-field-value">${d.tires_per_year ? d.tires_per_year + ' เส้น' : '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">ชั่วโมงทำงาน / วัน</div><div class="report-field-value">${d.work_hours ? d.work_hours + ' ชม.' : '–'}</div></div>
+          <div class="report-field" style="grid-column: span 3;"><div class="report-field-label">อุปกรณ์เสริม (Accessories)</div><div class="report-field-value">${d.accessories || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">วันเริ่มสัญญา</div><div class="report-field-value">${d.start || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">วันสิ้นสุดสัญญา</div><div class="report-field-value">${d.end || '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">จำนวนงวดทั้งหมด</div><div class="report-field-value">${d['งวด'] ? d['งวด'] + ' งวด' : '–'}</div></div>
+          <div class="report-field"><div class="report-field-label">จำนวนวันคงเหลือในสัญญา</div><div class="report-field-value">${d.days_left !== null ? d.days_left + ' วัน' : '–'}</div></div>
+          <div class="report-field" style="grid-column: span 2;"><div class="report-field-label">ระยะเวลาเช่าสะสม (Number of Rental Days to Date)</div><div class="report-field-value"><strong>${d.rental_days_to_date || '–'}</strong></div></div>
+          <div class="report-field"><div class="report-field-label">ราคาเช่า / เดือน</div><div class="report-field-value" style="color:#b45309; font-weight:bold;">${d.price > 0 ? d.price.toLocaleString() + ' ฿' : '–'}</div></div>
+          <div class="report-field" style="grid-column: span 2;"><div class="report-field-label">มูลค่าสัญญารวมทั้งหมด</div><div class="report-field-value" style="color:#15803d; font-weight:bold;">${totalValue > 0 ? totalValue.toLocaleString() + ' ฿' : '–'}</div></div>
+          <div class="report-field" style="grid-column: span 3; border-bottom:none; background:#f8fafc; padding:10px; margin-top:10px; border-radius:6px;">
+            <div class="report-field-label">📝 หมายเหตุ (Comment)</div>
+            <div class="report-field-value" style="white-space:pre-wrap; font-style:italic;">${d.comment || 'ไม่มีหมายเหตุ'}</div>
+          </div>
+        </div>
+      </div>`;
+  });
+  
+  document.getElementById('reportContainer').innerHTML = reportHtml;
+  document.getElementById('reportPage').classList.add('active');
+}
+
+function closeReport() {
+  document.getElementById('reportPage').classList.remove('active');
+}
+/* สิ้นสุดฟังก์ชัน Report */
 
 function changePage(dir){G_page+=dir;renderTable();}
 function goPage(p){G_page=p;renderTable();}
@@ -500,7 +661,7 @@ function openDetail(idx) {
   document.getElementById('detail-header-sub').textContent=`${d.province} · ${d.model} · ${d.new_used}`;
 
   let cls='ok',icon='✅',title='สัญญาปกติ',sub='';
-  if (isReserve)                              { cls='reserve';icon='🔧';title='รถสำรองใช้งาน';sub='ไม่มีสัญญาเช่า'; }
+  if (isReserve)                               { cls='reserve';icon='🔧';title='รถสำรองใช้งาน';sub='ไม่มีสัญญาเช่า'; }
   else if (d.expiry_cat==='หมดสัญญาแล้ว')   { cls='expired';icon='🚨';title='หมดสัญญาแล้ว';sub=`เกินกำหนดมา ${Math.abs(d.days_left)} วัน`; }
   else if (d.expiry_cat==='ภายใน 3 เดือน')  { cls='soon3';icon='⚠️';title='ใกล้หมดสัญญา — เร่งด่วน';sub=`เหลืออีก ${d.days_left} วัน`; }
   else if (d.expiry_cat==='ภายใน 6 เดือน')  { cls='soon6';icon='🔔';title='ใกล้หมดสัญญา';sub=`เหลืออีก ${d.days_left} วัน`; }
@@ -579,17 +740,30 @@ function openDetail(idx) {
     </div>
     <div style="height:40px"></div>`;
 
+  if (!detailIsOpen) {
+    history.pushState({detail:true, idx:idx},'');
+    detailIsOpen = true;
+  } else {
+    history.replaceState({detail:true, idx:idx},'');
+  }
+
   document.getElementById('detailPage').classList.add('active');
-  history.pushState({detail:true},'');
-  window.scrollTo(0,0);
+  document.getElementById('detailPage').scrollTop = 0;
 }
 
 function closDetail() {
   document.getElementById('detailPage').classList.remove('active');
-  if (history.state?.detail) history.back();
+  detailIsOpen = false;
 }
-window.addEventListener('popstate',()=>{document.getElementById('detailPage').classList.remove('active');});
-document.addEventListener('keydown',e=>{if(e.key==='Escape') closDetail();});
+
+window.addEventListener('popstate', function(e) {
+  if (document.getElementById('detailPage').classList.contains('active')) {
+    document.getElementById('detailPage').classList.remove('active');
+    detailIsOpen = false;
+  }
+});
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape') { closDetail(); if (detailIsOpen) history.back(); }});
 
 loadFromSheet();
 </script>
