@@ -42,7 +42,7 @@
   .alert-box.warn .alert-title { color: #fcd34d; }
   .alert-list { margin-top: 6px; font-size: 12px; color: #94a3b8; line-height: 1.6; }
 
-  /* Alert grid: 6 columns (company | province | chassis | start | end | status) */
+  /* Alert grid: 6 columns */
   .alert-header,
   .alert-row {
     font-family: monospace;
@@ -59,7 +59,6 @@
   .alert-row { cursor: pointer; transition: all 0.15s ease; }
   .alert-row:hover { opacity: 0.85; text-decoration: underline; }
 
-  /* chassis pill in alert */
   .chassis-pill {
     font-family: monospace;
     font-size: 11px;
@@ -144,29 +143,42 @@
   .progress-bar { height: 8px; background: #0f172a; border-radius: 8px; overflow: hidden; }
   .progress-fill { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
 
-  /* Report CSS Elements */
-  #reportPage { display: none; position: fixed; inset: 0; z-index: 200; background: #f8fafc; color: #1e293b; overflow-y: auto; padding: 40px 20px; }
+  /* 📊 ส่วนสไตล์ตกแต่งหน้า Report ให้หน้าตาเหมือน Excel ตารางงาน */
+  #reportPage { display: none; position: fixed; inset: 0; z-index: 200; background: #f1f5f9; color: #000000; overflow-y: auto; padding: 30px 15px; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
   #reportPage.active { display: block; }
-  .report-container { max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-  .report-control-bar { max-width: 1000px; margin: 0 auto 20px auto; display: flex; justify-content: space-between; }
-  .btn-print { background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-  .btn-close-report { background: #64748b; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
-  .report-item { page-break-after: always; border-bottom: 2px dashed #cbd5e1; padding-bottom: 30px; margin-bottom: 30px; }
-  .report-item:last-child { border-bottom: none; page-break-after: avoid; }
-  .report-header-block { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .report-title-text { font-size: 22px; font-weight: bold; color: #0f172a; }
-  .report-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 15px; }
-  .report-field { border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
-  .report-field-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-  .report-field-value { font-size: 14px; color: #0f172a; font-weight: 500; margin-top: 2px; }
+  .report-control-bar { max-width: 1100px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; }
+  .btn-print { background: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .btn-close-report { background: #475569; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
+  
+  .report-container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+  .report-excel-title { font-size: 20px; font-weight: bold; color: #1e3a8a; margin-bottom: 5px; text-transform: uppercase; }
+  .report-excel-sub { font-size: 12px; color: #475569; margin-bottom: 20px; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; }
+
+  /* โครงสร้างหลักตารางสไตล์ Excel */
+  .excel-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 35px; background: #fff; page-break-inside: avoid; }
+  .excel-table th, .excel-table td { border: 1px solid #cbd5e1; padding: 6px 10px; text-align: left; vertical-align: middle; }
+  
+  /* หัวข้อหมวดหมู่ใหญ่ในตาราง (เสมือนแถบหัวข้อกลุ่ม Excel) */
+  .excel-table tr.excel-group-header { background: #e2e8f0; font-weight: bold; color: #1e3a8a; font-size: 12px; }
+  
+  /* ส่วนกำหนดชื่อฟิลด์ด้านซ้าย */
+  .excel-label-col { background: #f8fafc; font-weight: 600; color: #334155; width: 22%; font-size: 11px; }
+  .excel-value-col { width: 28%; color: #000; }
+  
+  /* หัวตารางหลักระบุบริษัท */
+  .excel-main-header { background: #0f172a; color: #ffffff !important; font-size: 14px; font-weight: bold; padding: 8px 10px !important; }
 
   @media print {
     body * { visibility: hidden; }
     #reportPage, #reportPage * { visibility: visible; }
     #reportPage { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 0; }
     .report-control-bar { display: none !important; }
-    .report-container { box-shadow: none !important; border: none !important; padding: 0 !important; }
-    .report-item { border-bottom: 1px solid #aaa; }
+    .report-container { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; }
+    .excel-table { width: 100% !important; margin-bottom: 25px; }
+    .excel-table th, .excel-table td { border: 1px solid #94a3b8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .excel-table tr.excel-group-header { background: #e2e8f0 !important; }
+    .excel-label-col { background: #f8fafc !important; }
+    .excel-main-header { background: #0f172a !important; color: #ffffff !important; }
   }
 
   @media (max-width: 768px) {
@@ -207,9 +219,13 @@
 <div id="reportPage">
   <div class="report-control-bar">
     <button class="btn-close-report" onclick="closeReport()">✕ ปิดหน้าต่างรายงาน</button>
-    <button class="btn-print" onclick="window.print()">🖨️ บันทึกเป็น PDF / สั่งพิมพ์</button>
+    <button class="btn-print" onclick="window.print()">🖨️ สั่งพิมพ์ / บันทึกเป็น PDF (ตาราง Excel)</button>
   </div>
-  <div class="report-container" id="reportContainer"></div>
+  <div class="report-container">
+    <div class="report-excel-title">Bangkok Komatsu Forklift</div>
+    <div class="report-excel-sub">รายงานรายละเอียดข้อมูลประวัติและสัญญาเช่ารถฟอร์กลิฟต์ (แยกตามรายการที่เลือก)</div>
+    <div id="reportContainer"></div>
+  </div>
 </div>
 
 <div class="main">
@@ -234,7 +250,7 @@
     <div class="table-header">
       <h3>📋 รายการรถเช่าทั้งหมด</h3>
       <div class="filters">
-        <button id="btnRunReport" onclick="generateReport()" style="display:none; background:#10b981; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;">🖨️ ออกรายงานคันที่เลือก (<span id="selectedCount">0</span>)</button>
+        <button id="btnRunReport" onclick="generateReport()" style="display:none; background:#10b981; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">🖨️ ออกรายงานคันที่เลือก (<span id="selectedCount">0</span>)</button>
         <input type="text" id="searchInput" placeholder="🔍 ค้นหาบริษัท..." style="width:180px">
         <select id="filterProvince"><option value="">ทุกจังหวัด</option></select>
         <select id="filterExpiry"><option value="">ทุกสถานะ</option></select>
@@ -279,9 +295,7 @@ const SHEET_NAME = 'Sheet1';
 let G_DATA = [], G_filtered = [], G_page = 1;
 const PAGE_SIZE = 15;
 
-// เก็บเซ็ตข้อมูล index ของรถที่ถูกเลือกทำรายงาน
 let SELECTED_REPORT_INDEXES = new Set();
-
 let detailIsOpen = false;
 
 document.body.insertAdjacentHTML('afterbegin', `
@@ -362,12 +376,10 @@ async function loadFromSheet() {
     const text = await res.text();
     const json = JSON.parse(text.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);\s*$/,''));
     const cols = json.table.cols.map(c=>c.label.trim());
-    console.log('📋 Column names from Sheet:', cols);
     const rentalDaysIdx = cols.findIndex(c=>c.toLowerCase().includes('number of rental days'));
 
     const startIdx = cols.findIndex(c=> /^start/i.test(c) || /วันเริ่ม/i.test(c) || /start.?date/i.test(c));
     const endIdx   = cols.findIndex(c=> /^end/i.test(c)   || /วันหมด/i.test(c)   || /end.?date/i.test(c)   || /วันสิ้นสุด/i.test(c));
-    console.log(`🗓 startIdx=${startIdx} (${cols[startIdx]})  endIdx=${endIdx} (${cols[endIdx]})`);
 
     G_DATA = (json.table.rows||[])
       .filter(row=>row.c&&row.c.some(c=>c?.v!==null&&c?.v!==''))
@@ -505,7 +517,6 @@ function renderTable() {
   const start=(G_page-1)*PAGE_SIZE;
   const page=G_filtered.slice(start,start+PAGE_SIZE);
 
-  // ตรวจสอบสถานะการติ๊กของหัวตารางหลัก (Select All)
   const allChecked = page.length > 0 && page.every(d => SELECTED_REPORT_INDEXES.has(d._idx));
   document.getElementById('selectAllCheck').checked = allChecked;
 
@@ -542,9 +553,8 @@ function renderTable() {
   updateReportButton();
 }
 
-/* ฟังก์ชันควบคุมการจัดการ Checkbox & สร้าง Report */
 function handleRowSelect(chk, event) {
-  event.stopPropagation(); // ไม่ให้ไปเรียก openDetail สับซ้อนกัน
+  event.stopPropagation();
   const idx = parseInt(chk.getAttribute('data-idx'));
   if(chk.checked) {
     SELECTED_REPORT_INDEXES.add(idx);
@@ -579,6 +589,7 @@ function updateReportButton() {
   }
 }
 
+// 🖨️ ฟังก์ชันสร้างหน้า Report ในโครงสร้าง Table แบบตารางงาน Excel ดึงครบทุก Field
 function generateReport() {
   if(SELECTED_REPORT_INDEXES.size === 0) return;
   
@@ -592,49 +603,109 @@ function generateReport() {
     const currentStatusText = isReserve ? 'รถสำรองใช้งาน' : d.expiry_cat;
 
     reportHtml += `
-      <div class="report-item">
-        <div class="report-header-block">
-          <div>
-            <div class="report-title-text">${d.company}</div>
-            <div style="font-size:13px; color:#475569; margin-top:2px;">โมเดล: ${d.model || '–'} | หมายเลขรถ: ${d.car_no || '–'}</div>
-          </div>
-          <div style="text-align:right; font-size:12px; color:#475569;">
-            <div>สถานะสัญญา: <strong>${currentStatusText}</strong></div>
-            <div>จังหวัด: ${d.province || '–'}</div>
-          </div>
-        </div>
-        
-        <div style="font-size:12px; font-weight:bold; color:#1e3a8a; text-transform:uppercase; margin-bottom:8px;">📋 ข้อมูลทั่วไปและสัญญาครบทุกฟิลด์</div>
-        <div class="report-grid">
-          <div class="report-field"><div class="report-field-label">ลำดับที่ (No)</div><div class="report-field-value">${d.no || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">จังหวัด</div><div class="report-field-value">${d.province || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">สาขาที่ดูแล</div><div class="report-field-value">${d.branch || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">พนักงานขาย (Sales)</div><div class="report-field-value">${d.sales || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">เลขที่สัญญา</div><div class="report-field-value">${d.contract_no || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">รูปแบบรถ (Model)</div><div class="report-field-value">${d.model || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">ประเภทรถ</div><div class="report-field-value">${d.new_used || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">หมายเลขตัวถัง (Chassis No.)</div><div class="report-field-value">${d.chassis_no || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">หมายเลขเครื่องยนต์ (Engine No.)</div><div class="report-field-value">${d.engine_no || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">เบอร์รถ (Car No.)</div><div class="report-field-value">${d.car_no || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">เสา (Mast)</div><div class="report-field-value">${d.mast || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">งา (Forks)</div><div class="report-field-value">${d.forks || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">ยาง (Tire)</div><div class="report-field-value">${d.tire || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">จำนวนยาง / ปี</div><div class="report-field-value">${d.tires_per_year ? d.tires_per_year + ' เส้น' : '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">ชั่วโมงทำงาน / วัน</div><div class="report-field-value">${d.work_hours ? d.work_hours + ' ชม.' : '–'}</div></div>
-          <div class="report-field" style="grid-column: span 3;"><div class="report-field-label">อุปกรณ์เสริม (Accessories)</div><div class="report-field-value">${d.accessories || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">วันเริ่มสัญญา</div><div class="report-field-value">${d.start || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">วันสิ้นสุดสัญญา</div><div class="report-field-value">${d.end || '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">จำนวนงวดทั้งหมด</div><div class="report-field-value">${d['งวด'] ? d['งวด'] + ' งวด' : '–'}</div></div>
-          <div class="report-field"><div class="report-field-label">จำนวนวันคงเหลือในสัญญา</div><div class="report-field-value">${d.days_left !== null ? d.days_left + ' วัน' : '–'}</div></div>
-          <div class="report-field" style="grid-column: span 2;"><div class="report-field-label">ระยะเวลาเช่าสะสม (Number of Rental Days to Date)</div><div class="report-field-value"><strong>${d.rental_days_to_date || '–'}</strong></div></div>
-          <div class="report-field"><div class="report-field-label">ราคาเช่า / เดือน</div><div class="report-field-value" style="color:#b45309; font-weight:bold;">${d.price > 0 ? d.price.toLocaleString() + ' ฿' : '–'}</div></div>
-          <div class="report-field" style="grid-column: span 2;"><div class="report-field-label">มูลค่าสัญญารวมทั้งหมด</div><div class="report-field-value" style="color:#15803d; font-weight:bold;">${totalValue > 0 ? totalValue.toLocaleString() + ' ฿' : '–'}</div></div>
-          <div class="report-field" style="grid-column: span 3; border-bottom:none; background:#f8fafc; padding:10px; margin-top:10px; border-radius:6px;">
-            <div class="report-field-label">📝 หมายเหตุ (Comment)</div>
-            <div class="report-field-value" style="white-space:pre-wrap; font-style:italic;">${d.comment || 'ไม่มีหมายเหตุ'}</div>
-          </div>
-        </div>
-      </div>`;
+      <table class="excel-table">
+        <thead>
+          <tr>
+            <th colspan="4" class="excel-main-header">🏢 ข้อมูลบริษัทคู่สัญญา: ${d.company || '–'}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="excel-group-header">
+            <td colspan="4">1. ข้อมูลบริษัทและผู้ดูแล</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">ลำดับที่ (No.)</td>
+            <td class="excel-value-col">${d.no || '–'}</td>
+            <td class="excel-label-col">จังหวัด</td>
+            <td class="excel-value-col">${d.province || '–'}</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">สาขาที่ดูแล</td>
+            <td class="excel-value-col">${d.branch || '–'}</td>
+            <td class="excel-label-col">พนักงานขาย (Sales)</td>
+            <td class="excel-value-col">${d.sales || '–'}</td>
+          </tr>
+
+          <tr class="excel-group-header">
+            <td colspan="4">2. ข้อมูลตัวรถและอุปกรณ์ส่วนควบ (Forklift Specifications)</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">รูปแบบรถ (Model)</td>
+            <td class="excel-value-col"><strong>${d.model || '–'}</strong></td>
+            <td class="excel-label-col">ประเภทสภาพรถ</td>
+            <td class="excel-value-col">${d.new_used || '–'}</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">หมายเลขตัวถัง (Chassis No.)</td>
+            <td class="excel-value-col" style="font-family:monospace;">${d.chassis_no || '–'}</td>
+            <td class="excel-label-col">หมายเลขเครื่องยนต์ (Engine No.)</td>
+            <td class="excel-value-col" style="font-family:monospace;">${d.engine_no || '–'}</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">เบอร์รถ (Car No.)</td>
+            <td class="excel-value-col"><strong>${d.car_no || '–'}</strong></td>
+            <td class="excel-label-col">เสายก (Mast)</td>
+            <td class="excel-value-col">${d.mast || '–'}</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">งายก (Forks)</td>
+            <td class="excel-value-col">${d.forks || '–'}</td>
+            <td class="excel-label-col">ชนิดยาง (Tire)</td>
+            <td class="excel-value-col">${d.tire || '–'}</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">โควตายางเปลี่ยน / ปี</td>
+            <td class="excel-value-col">${d.tires_per_year ? d.tires_per_year + ' เส้น' : '–'}</td>
+            <td class="excel-label-col">ชั่วโมงทำงาน / วัน</td>
+            <td class="excel-value-col">${d.work_hours ? d.work_hours + ' ชม.' : '–'}</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">อุปกรณ์เสริม (Accessories)</td>
+            <td colspan="3">${d.accessories || '–'}</td>
+          </tr>
+
+          <tr class="excel-group-header">
+            <td colspan="4">3. รายละเอียดและกำหนดเวลาสัญญาเช่า</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">เลขที่สัญญา</td>
+            <td class="excel-value-col">${d.contract_no || '–'}</td>
+            <td class="excel-label-col">สถานะสัญญาปัจจุบัน</td>
+            <td class="excel-value-col"><strong>${currentStatusText}</strong></td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">วันเริ่มสัญญา</td>
+            <td class="excel-value-col">${d.start || '–'}</td>
+            <td class="excel-label-col">วันสิ้นสุดสัญญา</td>
+            <td class="excel-value-col">${d.end || '–'}</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">ระยะเวลารวม (งวด)</td>
+            <td class="excel-value-col">${d['งวด'] ? d['งวด'] + ' งวด' : '–'}</td>
+            <td class="excel-label-col">จำนวนวันคงเหลือ (Days Left)</td>
+            <td class="excel-value-col">${d.days_left !== null ? d.days_left + ' วัน' : '–'}</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">ระยะเวลาเช่าสะสม</td>
+            <td colspan="3">${d.rental_days_to_date || '–'}</td>
+          </tr>
+
+          <tr class="excel-group-header">
+            <td colspan="4">4. ข้อมูลสรุปทางบัญชีและการเงิน</td>
+          </tr>
+          <tr>
+            <td class="excel-label-col">ราคาค่าเช่า / เดือน</td>
+            <td class="excel-value-col" style="color:#b45309; font-weight:bold; font-size:13px;">${d.price > 0 ? d.price.toLocaleString() + ' ฿' : '–'}</td>
+            <td class="excel-label-col">มูลค่าสัญญารวมรวมทั้งสิ้น</td>
+            <td class="excel-value-col" style="color:#15803d; font-weight:bold; font-size:13px;">${totalValue > 0 ? totalValue.toLocaleString() + ' ฿' : '–'}</td>
+          </tr>
+          
+          <tr>
+            <td class="excel-label-col">หมายเหตุเพิ่มเติม (Comment)</td>
+            <td colspan="3" style="white-space:pre-wrap; font-style:italic; color:#475569;">${d.comment || 'ไม่มีหมายเหตุเพิ่มเติม'}</td>
+          </tr>
+        </tbody>
+      </table>`;
   });
   
   document.getElementById('reportContainer').innerHTML = reportHtml;
@@ -644,7 +715,6 @@ function generateReport() {
 function closeReport() {
   document.getElementById('reportPage').classList.remove('active');
 }
-/* สิ้นสุดฟังก์ชัน Report */
 
 function changePage(dir){G_page+=dir;renderTable();}
 function goPage(p){G_page=p;renderTable();}
